@@ -1,1 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NovaPay</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+:root {
+  --gold: #c9a84a;
+  --gold-dark: #a8892e;
+  --gold-soft: #f5e6b3;
+  --gold-light: #fdf8e6;
+  --bg: #ffffff;
+  --card: #ffffff;
+  --text: #2a2107;
+  --muted: #8b7d55;
+  --border: #efe3b8;
+  --green: #15803d;
+  --red: #b91c1c;
+  --blue: #2563eb;
+  --purple: #7c3aed;
+}
+
+html, body { height: 100%; background: #fdf8e6; overflow: hidden; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--text);
+  line-height: 1.4;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  height: 100vh;
+}
+
+.phone {
+  width: 100%;
+  max-width: 430px;
+  height: 100vh;
+  max-height: 100vh;
+  background: linear-gradient(180deg, #fffdf7 0%, #fdf8e6 55%, #f8ecc4 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: 20px;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+.screen.active { display: flex; }
+
+/* AUTH */
+.auth-screen { padding: 60px 30px 40px; justify-content: center; align-items: center; }
+.brand { font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--gold-dark); margin-bottom: 8px; text-align: center; }
+.brand span { color: var(--text); }
+.tagline { font-size: 14px; color: var(--muted); margin-bottom: 40px; text-align: center; }
+.auth-form { width: 100%; max-width: 340px; }
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+.field input { width: 100%; padding: 15px 18px; border-radius: 14px; background: #ffffff; border: 1.5px solid var(--border); color: var(--text); font-size: 15px; font-family: inherit; outline: none; transition: 0.15s; }
+.field input:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(201, 168, 74, 0.12); }
+.field input::placeholder { color: #b8a97a; }
+
+.btn-gold { width: 100%; padding: 16px; border-radius: 14px; background: linear-gradient(135deg, var(--gold-soft), var(--gold)); color: #2a2107; font-size: 15px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 8px 22px rgba(201, 168, 74, 0.3); transition: 0.15s; margin-top: 8px; font-family: inherit; }
+.btn-gold:active { transform: scale(0.98); }
+.auth-switch { text-align: center; margin-top: 24px; font-size: 13px; color: var(--muted); }
+.auth-switch a { color: var(--gold-dark); font-weight: 700; cursor: pointer; text-decoration: none; }
+.error-msg { color: var(--red); font-size: 13px; margin-top: 12px; text-align: center; min-height: 18px; font-weight: 600; }
+.success-msg { color: var(--green); font-size: 13px; margin-top: 12px; text-align: center; min-height: 18px; font-weight: 600; }
+
+.code-box { margin-top: 24px; padding: 22px; border-radius: 18px; background: linear-gradient(135deg, #fffdf7, #fdf8e6); border: 1.5px solid var(--gold); text-align: center; }
+.code-box .label { font-size: 12px; letter-spacing: 1px; color: var(--muted); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; }
+.code-box .code { font-size: 34px; letter-spacing: 8px; font-weight: 800; color: var(--gold-dark); font-family: "Courier New", monospace; }
+.code-box .hint { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+
+.otp-input {
+  width: 100%;
+  padding: 20px 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 2px solid var(--gold);
+  color: var(--text);
+  font-size: 26px;
+  font-weight: 800;
+  font-family: "Courier New", monospace;
+  letter-spacing: 12px;
+  text-align: center;
+  outline: none;
+  transition: 0.15s;
+}
+.otp-input:focus { box-shadow: 0 0 0 4px rgba(201, 168, 74, 0.15); }
+
+.status-bar { padding: 14px 22px 6px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 700; color: var(--text); flex-shrink: 0; }
+.status-bar .right { display: flex; align-items: center; gap: 7px; font-size: 13px; }
+.top-row { display: flex; align-items: center; gap: 12px; padding: 10px 20px 18px; flex-shrink: 0; }
+.icon-btn { width: 42px; height: 42px; border-radius: 50%; background: #ffffff; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; position: relative; color: var(--gold-dark); flex-shrink: 0; box-shadow: 0 2px 6px rgba(201,168,74,0.08); }
+.icon-btn .dot { position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #ef4444; border: 1.5px solid #ffffff; }
+.top-name { flex: 1; font-size: 19px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; box-shadow: 0 4px 14px rgba(201,168,74,0.4); flex-shrink: 0; cursor: pointer; }
+.date-line { padding: 0 22px 12px; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+.greeting-block { padding: 6px 22px 20px; flex-shrink: 0; }
+.greeting-block h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; color: var(--text); line-height: 1.15; }
+.greeting-block p { margin-top: 6px; font-size: 15px; color: var(--muted); font-weight: 500; }
+
+.account-pills { display: flex; gap: 10px; padding: 0 22px 22px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+.account-pills::-webkit-scrollbar { display: none; }
+.pill { flex-shrink: 0; padding: 11px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; white-space: nowrap; cursor: pointer; transition: 0.2s; font-family: inherit; border: 1.5px solid var(--border); background: #ffffff; color: var(--text); }
+.pill.active { background: linear-gradient(135deg, var(--gold-soft), var(--gold)); color: #2a2107; border-color: transparent; box-shadow: 0 6px 18px rgba(201,168,74,0.3); }
+
+.balance-card { margin: 0 18px 16px; padding: 26px 24px 24px; border-radius: 24px; background: linear-gradient(140deg, #ffffff 0%, #fdf8e6 100%); border: 1.5px solid var(--border); position: relative; overflow: hidden; box-shadow: 0 8px 24px rgba(201,168,74,0.1); flex-shrink: 0; }
+.balance-card::after { content: ""; position: absolute; width: 320px; height: 320px; border-radius: 50%; right: -160px; bottom: -180px; background: radial-gradient(circle, rgba(201,168,74,0.15) 0%, transparent 65%); pointer-events: none; }
+.balance-label { font-size: 14px; color: var(--muted); font-weight: 500; position: relative; z-index: 2; }
+.balance-amount { margin: 8px 0 6px; font-size: 40px; font-weight: 800; letter-spacing: -1.5px; color: var(--text); position: relative; z-index: 2; line-height: 1.05; word-break: break-all; transition: 0.3s; }
+.balance-sub { font-size: 14px; color: var(--muted); font-weight: 500; position: relative; z-index: 2; }
+.balance-actions { margin-top: 20px; display: flex; gap: 12px; position: relative; z-index: 2; flex-wrap: wrap; }
+.btn-primary { padding: 12px 22px; border-radius: 12px; background: linear-gradient(135deg, var(--gold-soft), var(--gold)); color: #2a2107; font-size: 14px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 6px 18px rgba(201,168,74,0.28); transition: 0.15s; font-family: inherit; }
+.btn-outline { padding: 12px 22px; border-radius: 12px; background: #ffffff; color: var(--gold-dark); font-size: 14px; font-weight: 800; border: 1.5px solid var(--gold); cursor: pointer; transition: 0.15s; font-family: inherit; }
+.pending-row { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); position: relative; z-index: 2; font-size: 12px; }
+.pending-row .pending-item { display: flex; flex-direction: column; }
+.pending-row .pending-label { color: var(--muted); font-weight: 600; font-size: 10.5px; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 4px; }
+.pending-row .pending-value { color: var(--text); font-weight: 800; font-size: 13px; }
+
+.quick-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 18px 16px; flex-shrink: 0; }
+.quick-action { padding: 14px; border-radius: 14px; background: #ffffff; border: 1.5px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.15s; font-family: inherit; color: var(--text); text-align: left; box-shadow: 0 2px 6px rgba(201,168,74,0.06); }
+.quick-action:active { transform: scale(0.97); }
+.quick-action .qa-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--gold-light); color: var(--gold-dark); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.quick-action.frozen .qa-icon { background: #fee2e2; color: var(--red); }
+.quick-action .qa-label { font-size: 10.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.quick-action .qa-value { font-size: 13px; color: var(--text); font-weight: 800; margin-top: 2px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 18px 16px; flex-shrink: 0; }
+.stat-card { background: #ffffff; border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 6px; text-align: center; }
+.stat-card .stat-label { font-size: 9.5px; color: var(--muted); font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; margin-bottom: 6px; }
+.stat-card .stat-value { font-size: 13px; color: var(--gold-dark); font-weight: 800; word-break: break-all; }
+
+.quick-info-row { display: flex; gap: 8px; margin: 0 18px 16px; flex-wrap: wrap; flex-shrink: 0; }
+.info-chip { padding: 6px 12px; border-radius: 999px; background: var(--gold-light); border: 1.5px solid var(--border); font-size: 11px; font-weight: 700; color: var(--gold-dark); display: flex; align-items: center; gap: 5px; }
+.info-chip.green { background: #dcfce7; border-color: #86efac; color: #166534; }
+
+.chart-card { margin: 0 18px 16px; padding: 18px; border-radius: 18px; background: #ffffff; border: 1.5px solid var(--border); flex-shrink: 0; }
+.chart-card h3 { font-size: 13px; font-weight: 800; color: var(--gold-dark); margin-bottom: 14px; letter-spacing: -0.2px; }
+.chart-bars { display: flex; align-items: flex-end; justify-content: space-between; height: 90px; gap: 4px; }
+.chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.chart-bar { width: 100%; border-radius: 4px; background: linear-gradient(180deg, var(--gold), var(--gold-dark)); min-height: 4px; transition: 0.3s; }
+.chart-bar.spend { background: linear-gradient(180deg, #f87171, #dc2626); }
+.chart-label { font-size: 9px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+.chart-legend { display: flex; gap: 14px; margin-top: 10px; font-size: 11px; color: var(--muted); }
+.chart-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+.chart-legend .dot.inc { background: var(--gold); }
+.chart-legend .dot.spd { background: #ef4444; }
+
+.donut-wrap { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+.donut { width: 110px; height: 110px; border-radius: 50%; flex-shrink: 0; position: relative; background: conic-gradient(#c9a84a 0% var(--p1, 0%), #2563eb var(--p1, 0%) var(--p2, 0%), #15803d var(--p2, 0%) var(--p3, 0%), #b91c1c var(--p3, 0%) var(--p4, 0%), #7c3aed var(--p4, 0%) var(--p5, 0%), #8b7d55 var(--p5, 0%) 100%); }
+.donut::after { content: ""; position: absolute; inset: 14px; background: #ffffff; border-radius: 50%; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.donut-legend .item { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.donut-legend .item .name { display: flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 600; }
+.donut-legend .item .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.donut-legend .item .pct { color: var(--text); font-weight: 800; }
+
+.service-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 18px 22px; flex-shrink: 0; }
+.service-tile { background: #ffffff; border: 1.5px solid var(--border); border-radius: 16px; padding: 14px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: 0.15s; font-family: inherit; box-shadow: 0 2px 6px rgba(201,168,74,0.05); }
+.service-tile:active { transform: scale(0.97); }
+.service-tile .ico { width: 36px; height: 36px; border-radius: 11px; background: var(--gold-light); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--gold-dark); }
+.service-tile .lbl { font-size: 10.5px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.2; }
+
+.bottom-nav { position: absolute; left: 0; right: 0; bottom: 0; background: #ffffff; border-top: 1.5px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding: 10px 6px 22px; z-index: 200; box-shadow: 0 -6px 24px rgba(201,168,74,0.08); }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; padding: 6px 8px; transition: 0.15s; background: none; border: none; font-family: inherit; flex: 1; }
+.nav-item.active { color: var(--gold-dark); }
+.nav-item .nav-icon { font-size: 20px; }
+
+.panel { margin: 0 18px 18px; padding: 22px; border-radius: 20px; background: #ffffff; border: 1.5px solid var(--border); box-shadow: 0 4px 12px rgba(201,168,74,0.06); }
+.panel h2 { font-size: 18px; font-weight: 800; color: var(--gold-dark); margin-bottom: 18px; letter-spacing: -0.3px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
+.form-group input, .form-group select { width: 100%; padding: 14px 16px; border-radius: 12px; background: #fdf8e6; border: 1.5px solid var(--border); color: var(--text); font-size: 15px; font-family: inherit; outline: none; transition: 0.15s; }
+.form-group input:focus, .form-group select:focus { border-color: var(--gold); background: #ffffff; box-shadow: 0 0 0 4px rgba(201,168,74,0.1); }
+.form-group select option { background: #ffffff; color: var(--text); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+.toggle-row .toggle-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.toggle-row .toggle-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.switch { position: relative; width: 48px; height: 28px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider { position: absolute; cursor: pointer; inset: 0; background: #e5dfc7; border-radius: 999px; transition: 0.3s; }
+.switch .slider::before { content: ""; position: absolute; height: 22px; width: 22px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+.switch input:checked + .slider { background: linear-gradient(135deg, var(--gold-soft), var(--gold)); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+.tx-list { display: flex; flex-direction: column; gap: 2px; }
+.tx { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.tx:last-child { border-bottom: none; }
+.tx-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+.tx-icon { width: 42px; height: 42px; border-radius: 12px; background: var(--gold-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.tx-name { font-size: 14px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.tx-date { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.tx-amount { font-size: 14px; font-weight: 800; white-space: nowrap; margin-left: 8px; }
+.tx-amount.positive { color: var(--green); }
+.tx-amount.negative { color: var(--red); }
+
+.empty-state { text-align: center; padding: 30px 10px; color: var(--muted); font-size: 14px; }
+
+.row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.row:last-child { border-bottom: none; }
+.row .lbl { color: var(--muted); font-weight: 500; }
+.row .val { color: var(--text); font-weight: 700; text-align: right; }
+
+.section-title { padding: 0 22px 12px; font-size: 15px; font-weight: 800; color: var(--gold-dark); letter-spacing: -0.2px; }
+
+.info-box { padding: 16px; border-radius: 14px; background: #eff6ff; border: 1.5px solid #bfdbfe; margin-bottom: 16px; font-size: 13px; color: #1e40af; line-height: 1.6; }
+
+.copy-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #fdf8e6; border-radius: 10px; margin-bottom: 8px; border: 1.5px solid var(--border); }
+.copy-row .key { font-size: 12px; color: var(--muted); font-weight: 600; }
+.copy-row .value { font-size: 14px; color: var(--text); font-weight: 700; font-family: "Courier New", monospace; }
+.copy-row .copy-btn { background: var(--gold-light); color: var(--gold-dark); border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+.search-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 14px; background: #fdf8e6; border: 1.5px solid var(--border); margin-bottom: 12px; }
+.search-bar input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 14px; font-family: inherit; outline: none; }
+.search-bar input::placeholder { color: #b8a97a; }
+.search-bar .search-icon { color: var(--gold-dark); font-size: 16px; }
+.filter-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; margin-bottom: 14px; }
+.filter-chips::-webkit-scrollbar { display: none; }
+.filter-chip { flex-shrink: 0; padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.15s; border: 1.5px solid var(--border); background: #ffffff; color: var(--gold-dark); font-family: inherit; }
+.filter-chip.active { background: linear-gradient(135deg, var(--gold-soft), var(--gold)); color: #2a2107; border-color: transparent; }
+
+.notif-item { display: flex; gap: 12px; padding: 14px; border-radius: 12px; background: #fdf8e6; border: 1.5px solid var(--border); margin-bottom: 10px; }
+.notif-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; background: var(--gold-light); color: var(--gold-dark); flex-shrink: 0; }
+.notif-info { flex: 1; min-width: 0; }
+.notif-title { font-size: 13.5px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+.notif-text { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.notif-time { font-size: 10.5px; color: var(--muted); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+
+.contact-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.contact-item:last-child { border-bottom: none; }
+.contact-item .co-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+.contact-item .co-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.contact-item .co-info { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.contact-item .co-action { background: var(--gold-light); color: var(--gold-dark); border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+.payee-card { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: #fdf8e6; border: 1.5px solid var(--border); margin-bottom: 10px; }
+.payee-avatar { width: 42px; height: 42px; border-radius: 12px; background: var(--gold-light); color: var(--gold-dark); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.payee-info { flex: 1; min-width: 0; }
+.payee-name { font-size: 14px; font-weight: 800; color: var(--text); }
+.payee-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.payee-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.payee-btn { background: var(--gold-light); color: var(--gold-dark); border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.payee-btn.danger { background: #fee2e2; color: var(--red); }
+
+.frozen-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 10; border-radius: 24px; }
+.frozen-overlay.show { display: flex; }
+.frozen-badge { background: linear-gradient(135deg, #f87171, #dc2626); color: white; padding: 8px 20px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; }
+.frozen-text { color: var(--text); font-size: 13px; font-weight: 600; opacity: 0.75; }
+
+.toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) translateY(20px); background: linear-gradient(135deg, var(--gold-soft), var(--gold)); color: #2a2107; padding: 12px 22px; border-radius: 999px; font-size: 13px; font-weight: 800; box-shadow: 0 12px 30px rgba(201,168,74,0.4); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; max-width: 340px; text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (min-width: 480px) {
+  body { padding: 20px 0; background: #fdf8e6; align-items: center; }
+  .phone { border-radius: 42px; box-shadow: 0 30px 80px rgba(42,33,7,0.2); height: calc(100vh - 40px); max-height: 900px; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- SIGN IN -->
+  <section id="screen-signin" class="screen auth-screen active">
+    <div class="brand">Nova<span>Pay</span></div>
+    <div class="tagline">Sign in to your account</div>
+    <div class="auth-form">
+      <div class="field"><label for="si-user">Username</label>
+        <input id="si-user" type="text" placeholder="Your username" autocomplete="username"></div>
+      <div class="field"><label for="si-pass">Password</label>
+        <input id="si-pass" type="password" placeholder="Your password" autocomplete="current-password"></div>
+      <button class="btn-gold" onclick="handleSignIn()">Continue</button>
+      <div class="error-msg" id="si-error"></div>
+    </div>
+  </section>
+
+  <!-- 2FA -->
+  <section id="screen-verify" class="screen auth-screen">
+    <div class="brand">Verification 🔐</div>
+    <div class="tagline">Enter the 6-digit code to continue</div>
+    <div class="auth-form">
+      <div class="code-box">
+        <div class="label">Verification Code</div>
+        <div class="code" id="verify-code-display">------</div>
+        <div class="hint">
+          We sent this code to your email<br>
+          <strong id="verify-email-display">—</strong>
+        </div>
+      </div>
+      <div class="field" style="margin-top: 20px;">
+        <label for="verify-code-input">Enter Code</label>
+        <input id="verify-code-input" class="otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="------" autocomplete="one-time-code">
+      </div>
+      <button class="btn-gold" onclick="handleVerify()">Verify &amp; Sign In</button>
+      <div class="error-msg" id="verify-error"></div>
+      <div class="auth-switch">
+        <a onclick="handleResendCode()">Resend code</a> · <a onclick="cancelVerify()">Cancel</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section id="screen-home" class="screen">
+    <div class="status-bar"><span id="clock">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row">
+      <div class="icon-btn" id="theme-btn" onclick="toggleTheme()">☀️</div>
+      <div class="icon-btn" onclick="showScreen('screen-notifications')">🔔<span class="dot" id="notif-dot"></span></div>
+      <div class="top-name" id="home-name">—</div>
+      <div class="avatar" id="home-avatar">--</div>
+    </div>
+    <div class="date-line" id="date-line-home">—</div>
+    <div class="greeting-block">
+      <h1 id="greeting">Good Afternoon</h1>
+      <p id="last-login">Last login: —</p>
+    </div>
+    <div class="account-pills">
+      <button class="pill active" id="pill-checking">🏦 Checking •••• 4821</button>
+    </div>
+    <div class="balance-card" id="main-balance-card">
+      <div class="frozen-overlay" id="frozen-overlay">
+        <div class="frozen-badge">❄ CARD FROZEN</div>
+        <div class="frozen-text">Tap Quick Freeze to unfreeze</div>
+      </div>
+      <div class="balance-label">Available Balance</div>
+      <div class="balance-amount" id="balance-display">$50,000.00</div>
+      <div class="balance-sub" id="balance-sub">Checking Account •••• 4821</div>
+      <div class="balance-actions">
+        <button class="btn-primary" onclick="showScreen('screen-transfer')">Transfer</button>
+        <button class="btn-outline" onclick="showScreen('screen-deposit')">Deposit</button>
+        <button class="btn-outline" onclick="showScreen('screen-manage-card')">Manage Card</button>
+      </div>
+      <div class="pending-row">
+        <div class="pending-item"><div class="pending-label">Pending</div><div class="pending-value" id="pending-value">$0.00</div></div>
+        <div class="pending-item"><div class="pending-label">Available</div><div class="pending-value" id="available-value">$50,000.00</div></div>
+        <div class="pending-item"><div class="pending-label">Interest YTD</div><div class="pending-value" id="interest-value">$0.00</div></div>
+      </div>
+    </div>
+    <div class="quick-actions-row">
+      <button class="quick-action" id="quick-freeze" onclick="quickToggleFreeze()">
+        <div class="qa-icon" id="freeze-icon">❄</div>
+        <div>
+          <div class="qa-label">Card</div>
+          <div class="qa-value" id="freeze-label">Freeze</div>
+        </div>
+      </button>
+      <button class="quick-action" onclick="showScreen('screen-scheduled')">
+        <div class="qa-icon">⏰</div>
+        <div>
+          <div class="qa-label">Scheduled</div>
+          <div class="qa-value" id="scheduled-count">None</div>
+        </div>
+      </button>
+    </div>
+    <div class="quick-info-row">
+      <div class="info-chip" id="chip-cashback">💵 Cashback: $0.00</div>
+      <div class="info-chip green" id="chip-streak">🔥 12-day streak</div>
+      <div class="info-chip" id="chip-member">⭐ Member since —</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Income</div><div class="stat-value" id="stat-income">$0</div></div>
+      <div class="stat-card"><div class="stat-label">Spent</div><div class="stat-value" id="stat-spent">$0</div></div>
+      <div class="stat-card"><div class="stat-label">Saved</div><div class="stat-value" id="stat-saved">$0</div></div>
+      <div class="stat-card"><div class="stat-label">Txns</div><div class="stat-value" id="stat-count">0</div></div>
+    </div>
+    <div class="chart-card">
+      <h3>Last 7 Days</h3>
+      <div class="chart-bars" id="chart-bars"></div>
+      <div class="chart-legend">
+        <span><span class="dot inc"></span>Income</span>
+        <span><span class="dot spd"></span>Spending</span>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Spending Breakdown</h3>
+      <div class="donut-wrap">
+        <div class="donut" id="donut-chart"></div>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+    <div class="service-grid">
+      <button class="service-tile" onclick="showScreen('screen-receive')"><div class="ico">↓</div><div class="lbl">Receive</div></button>
+      <button class="service-tile" onclick="showScreen('screen-wire')"><div class="ico">🌐</div><div class="lbl">Wire</div></button>
+      <button class="service-tile" onclick="showScreen('screen-zelle')"><div class="ico">⚡</div><div class="lbl">Zelle</div></button>
+      <button class="service-tile" onclick="showScreen('screen-budget')"><div class="ico">📊</div><div class="lbl">Budget</div></button>
+      <button class="service-tile" onclick="showScreen('screen-contacts')"><div class="ico">👥</div><div class="lbl">Contacts</div></button>
+      <button class="service-tile" onclick="showScreen('screen-statements')"><div class="ico">📄</div><div class="lbl">Statements</div></button>
+      <button class="service-tile" onclick="showScreen('screen-currency')"><div class="ico">💱</div><div class="lbl">Currency</div></button>
+      <button class="service-tile" onclick="showScreen('screen-split')"><div class="ico">🧾</div><div class="lbl">Split</div></button>
+    </div>
+    <div class="section-title">Recent Activity</div>
+    <div class="panel">
+      <div class="tx-list" id="home-tx-list"><div class="empty-state">No transactions yet.</div></div>
+    </div>
+  </section>
+
+  <!-- NOTIFICATIONS -->
+  <section id="screen-notifications" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Notifications</div><div class="avatar" id="notif-avatar">--</div></div>
+    <div class="panel"><h2>Recent Alerts</h2><div id="notif-list"><div class="empty-state">No notifications.</div></div></div>
+  </section>
+
+  <!-- MANAGE CARD -->
+  <section id="screen-manage-card" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Manage Card</div><div class="avatar" id="card-mgmt-avatar">--</div></div>
+    <div class="panel">
+      <h2>Card Controls</h2>
+      <div class="row"><span class="lbl">Card Status</span><span class="val" id="card-status-label">Active</span></div>
+      <button class="btn-outline" style="width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:800;margin-top:14px;" onclick="toggleFreeze()" id="freeze-btn">❄ Freeze Card</button>
+      <button class="btn-gold" style="margin-top:10px;" onclick="revealPin()">Reveal PIN</button>
+      <button class="btn-outline" style="width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:800;margin-top:10px;" onclick="generateVirtualCard()">+ Generate Virtual Card</button>
+      <div class="success-msg" id="card-msg"></div>
+    </div>
+    <div class="panel"><h2>Virtual Card Gallery</h2><div id="vcard-gallery"><div class="empty-state">No virtual cards generated yet.</div></div></div>
+  </section>
+
+  <!-- SCHEDULED -->
+  <section id="screen-scheduled" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Scheduled Transfers</div><div class="avatar" id="sched-avatar">--</div></div>
+    <div class="panel">
+      <h2>New Recurring Transfer</h2>
+      <div class="form-group"><label for="sc-name">Recipient</label><input id="sc-name" type="text" placeholder="e.g. Mom"></div>
+      <div class="form-group"><label for="sc-amount">Amount (USD)</label><input id="sc-amount" type="number" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sc-frequency">Frequency</label>
+          <select id="sc-frequency">
+            <option value="daily">Daily</option>
+            <option value="weekly" selected>Weekly</option>
+            <option value="biweekly">Bi-Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="sc-start">Start Date</label>
+          <input id="sc-start" type="date">
+        </div>
+      </div>
+      <button class="btn-gold" onclick="addScheduled()">Schedule Transfer</button>
+      <div class="error-msg" id="sc-msg"></div>
+    </div>
+    <div class="panel">
+      <h2>Active Schedules</h2>
+      <div id="scheduled-list"><div class="empty-state">No scheduled transfers yet.</div></div>
+    </div>
+  </section>
+
+  <!-- CONTACTS -->
+  <section id="screen-contacts" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Contacts</div><div class="avatar" id="contacts-avatar">--</div></div>
+    <div class="panel">
+      <h2>Add Contact</h2>
+      <div class="form-group"><label for="ct-name">Name</label><input id="ct-name" type="text" placeholder="e.g. Jane Smith"></div>
+      <div class="form-group"><label for="ct-info">Email or Phone</label><input id="ct-info" type="text" placeholder="jane@example.com"></div>
+      <button class="btn-gold" onclick="addContact()">Save Contact</button>
+      <div class="success-msg" id="ct-msg"></div>
+    </div>
+    <div class="panel"><h2>Saved Contacts</h2><div id="contacts-list"><div class="empty-state">No contacts yet.</div></div></div>
+  </section>
+
+  <!-- BUDGET -->
+  <section id="screen-budget" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Budget</div><div class="avatar" id="budget-avatar">--</div></div>
+    <div class="panel"><h2>Monthly Budgets</h2><div id="budget-list"></div></div>
+    <div class="panel">
+      <h2>Set a Category Budget</h2>
+      <div class="form-group"><label for="bd-cat">Category</label>
+        <select id="bd-cat">
+          <option value="Food">Food & Dining</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Bills">Bills & Utilities</option>
+          <option value="Transport">Transport</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Other">Other</option>
+        </select></div>
+      <div class="form-group"><label for="bd-amount">Monthly Limit (USD)</label><input id="bd-amount" type="number" placeholder="0.00"></div>
+      <button class="btn-gold" onclick="saveBudget()">Save Budget</button>
+      <div class="success-msg" id="bd-msg"></div>
+    </div>
+  </section>
+
+  <!-- STATEMENTS -->
+  <section id="screen-statements" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Statements</div><div class="avatar" id="stmt-avatar">--</div></div>
+    <div class="panel"><h2>Monthly Statements</h2><div id="statements-list"></div></div>
+  </section>
+
+  <!-- CURRENCY -->
+  <section id="screen-currency" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Currency</div><div class="avatar" id="curr-avatar">--</div></div>
+    <div class="panel">
+      <h2>Your Balance In</h2>
+      <div class="row"><span class="lbl">🇺🇸 USD</span><span class="val" id="cur-usd">$0.00</span></div>
+      <div class="row"><span class="lbl">🇪🇺 EUR</span><span class="val" id="cur-eur">€0.00</span></div>
+      <div class="row"><span class="lbl">🇬🇧 GBP</span><span class="val" id="cur-gbp">£0.00</span></div>
+      <div class="row"><span class="lbl">🇳🇬 NGN</span><span class="val" id="cur-ngn">₦0.00</span></div>
+      <div class="row"><span class="lbl">🇯🇵 JPY</span><span class="val" id="cur-jpy">¥0</span></div>
+    </div>
+    <div class="panel">
+      <h2>Quick Converter</h2>
+      <div class="form-group"><label for="cv-amount">Amount (USD)</label><input id="cv-amount" type="number" placeholder="100" oninput="updateConverter()"></div>
+      <div class="row"><span class="lbl">EUR</span><span class="val" id="cv-eur">€0.00</span></div>
+      <div class="row"><span class="lbl">GBP</span><span class="val" id="cv-gbp">£0.00</span></div>
+      <div class="row"><span class="lbl">NGN</span><span class="val" id="cv-ngn">₦0.00</span></div>
+    </div>
+  </section>
+
+  <!-- SPLIT -->
+  <section id="screen-split" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Split Bill</div><div class="avatar" id="split-avatar">--</div></div>
+    <div class="panel">
+      <h2>Split a Bill</h2>
+      <div class="form-group"><label for="sp-total">Total Amount (USD)</label><input id="sp-total" type="number" placeholder="0.00" oninput="calcSplit()"></div>
+      <div class="form-group"><label for="sp-count">Split Between (people)</label><input id="sp-count" type="number" placeholder="2" min="2" max="20" oninput="calcSplit()"></div>
+      <div class="info-box" id="split-result">Enter total and number of people.</div>
+      <button class="btn-gold" onclick="handleSplit()">Pay My Share</button>
+      <div class="success-msg" id="sp-msg"></div>
+    </div>
+  </section>
+
+  <!-- TRANSFER -->
+  <section id="screen-transfer" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Transfer</div><div class="avatar" id="transfer-avatar">--</div></div>
+    <div class="panel">
+      <h2>Send Money</h2>
+      <div class="form-group"><label for="tr-recipient">Recipient Name</label><input id="tr-recipient" type="text" placeholder="e.g. John Doe"></div>
+      <div class="form-group"><label for="tr-amount">Amount (USD)</label><input id="tr-amount" type="number" placeholder="0.00"></div>
+      <div class="form-group"><label for="tr-category">Category</label>
+        <select id="tr-category">
+          <option value="Other">Other</option>
+          <option value="Food">Food & Dining</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Bills">Bills</option>
+          <option value="Transport">Transport</option>
+          <option value="Entertainment">Entertainment</option>
+        </select></div>
+      <div class="form-group"><label for="tr-note">Note (optional)</label><input id="tr-note" type="text" placeholder="What's this for?"></div>
+      <button class="btn-gold" onclick="handleTransfer()">Send Transfer</button>
+      <div class="error-msg" id="tr-msg"></div>
+    </div>
+  </section>
+
+  <!-- DEPOSIT -->
+  <section id="screen-deposit" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Deposit</div><div class="avatar" id="deposit-avatar">--</div></div>
+    <div class="panel">
+      <h2>Add Funds</h2>
+      <div class="form-group"><label for="dp-amount">Amount (USD)</label><input id="dp-amount" type="number" placeholder="0.00"></div>
+      <div class="form-group"><label for="dp-source">Source</label><input id="dp-source" type="text" placeholder="e.g. Paycheck"></div>
+      <button class="btn-gold" onclick="handleDeposit()">Deposit</button>
+      <div class="error-msg" id="dp-msg"></div>
+    </div>
+    <div class="panel">
+      <h2>📷 Mobile Check Deposit</h2>
+      <div class="form-group"><label for="ck-amount">Check Amount (USD)</label><input id="ck-amount" type="number" placeholder="0.00"></div>
+      <div class="form-group"><label for="ck-from">From (Payer)</label><input id="ck-from" type="text" placeholder="e.g. Acme Corp"></div>
+      <button class="btn-gold" onclick="handleCheckDeposit()">Deposit Check</button>
+      <div class="success-msg" id="ck-msg"></div>
+    </div>
+  </section>
+
+  <!-- RECEIVE -->
+  <section id="screen-receive" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Receive Money</div><div class="avatar" id="receive-avatar">--</div></div>
+    <div class="panel">
+      <h2>Receive Funds</h2>
+      <div class="copy-row"><div><div class="key">Account Holder</div><div class="value" id="rcv-holder">—</div></div></div>
+      <div class="copy-row"><div><div class="key">Routing</div><div class="value">021000021</div></div><button class="copy-btn" onclick="copyText('021000021')">COPY</button></div>
+      <div class="copy-row"><div><div class="key">Account</div><div class="value">•••• 4821</div></div><button class="copy-btn" onclick="copyText('00001234821')">COPY</button></div>
+      <div style="margin-top:18px;">
+        <div class="form-group"><label for="rcv-from">From (Name)</label><input id="rcv-from" type="text" placeholder="e.g. Trust Wallet"></div>
+        <div class="form-group"><label for="rcv-amount">Amount (USD)</label><input id="rcv-amount" type="number" placeholder="0.00"></div>
+        <button class="btn-gold" onclick="handleReceive()">Receive Payment</button>
+        <div class="error-msg" id="rcv-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WIRE -->
+  <section id="screen-wire" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Wire Transfer</div><div class="avatar" id="wire-avatar">--</div></div>
+    <div class="panel">
+      <h2>Send a Wire</h2>
+      <div class="form-group"><label for="wr-name">Recipient</label><input id="wr-name" type="text" placeholder="Jane Smith"></div>
+      <div class="form-group"><label for="wr-bank">Bank</label><input id="wr-bank" type="text" placeholder="Chase"></div>
+      <div class="form-group"><label for="wr-routing">Routing (9 digits)</label><input id="wr-routing" type="text" maxlength="9" placeholder="021000021"></div>
+      <div class="form-group"><label for="wr-account">Account Number</label><input id="wr-account" type="text" placeholder="Account #"></div>
+      <div class="form-group"><label for="wr-amount">Amount (USD)</label><input id="wr-amount" type="number" placeholder="0.00"></div>
+      <button class="btn-gold" onclick="handleWire()">Send Wire</button>
+      <div class="error-msg" id="wr-msg"></div>
+    </div>
+  </section>
+
+  <!-- ZELLE -->
+  <section id="screen-zelle" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Zelle®</div><div class="avatar" id="zelle-avatar">--</div></div>
+    <div class="panel">
+      <h2>Send with Zelle®</h2>
+      <div class="form-group"><label for="zl-recipient">Recipient Email or Phone</label><input id="zl-recipient" type="text" placeholder="name@example.com"></div>
+      <div class="form-group"><label for="zl-amount">Amount (USD)</label><input id="zl-amount" type="number" placeholder="0.00"></div>
+      <button class="btn-gold" onclick="handleZelle()">Send Zelle</button>
+      <div class="error-msg" id="zl-msg"></div>
+    </div>
+  </section>
+
+  <!-- BILLS -->
+  <section id="screen-bills" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Bills</div><div class="avatar" id="bills-avatar">--</div></div>
+    <div class="panel">
+      <h2>Saved Payees</h2>
+      <div id="payees-list"><div class="empty-state">No saved payees yet.</div></div>
+    </div>
+    <div class="panel">
+      <h2>Add a Payee</h2>
+      <div class="form-group"><label for="py-name">Biller Name</label><input id="py-name" type="text" placeholder="e.g. Electric Company"></div>
+      <div class="form-group"><label for="py-amount">Default Amount (optional)</label><input id="py-amount" type="number" placeholder="0.00"></div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Autopay</div>
+          <div class="toggle-sub">Automatically pay this bill monthly</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="py-autopay">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <button class="btn-gold" onclick="addPayee()">Save Payee</button>
+      <div class="success-msg" id="py-msg"></div>
+    </div>
+    <div class="panel">
+      <h2>One-time Payment</h2>
+      <div class="form-group"><label for="bl-name">Biller</label><input id="bl-name" type="text" placeholder="Electric Company"></div>
+      <div class="form-group"><label for="bl-amount">Amount (USD)</label><input id="bl-amount" type="number" placeholder="0.00"></div>
+      <button class="btn-gold" onclick="handleBill()">Pay Bill</button>
+      <div class="error-msg" id="bl-msg"></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="screen-history" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">History</div><div class="avatar" id="history-avatar">--</div></div>
+    <div class="date-line" id="date-line-history">—</div>
+    <div class="panel">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input id="history-search" type="text" placeholder="Search transactions…" oninput="renderHistoryFiltered()">
+      </div>
+      <div class="filter-chips" id="history-filters">
+        <button class="filter-chip active" data-filter="all" onclick="setHistoryFilter('all')">All</button>
+        <button class="filter-chip" data-filter="income" onclick="setHistoryFilter('income')">Income</button>
+        <button class="filter-chip" data-filter="spending" onclick="setHistoryFilter('spending')">Spending</button>
+        <button class="filter-chip" data-filter="Food" onclick="setHistoryFilter('Food')">Food</button>
+        <button class="filter-chip" data-filter="Shopping" onclick="setHistoryFilter('Shopping')">Shopping</button>
+        <button class="filter-chip" data-filter="Bills" onclick="setHistoryFilter('Bills')">Bills</button>
+        <button class="filter-chip" data-filter="Transport" onclick="setHistoryFilter('Transport')">Transport</button>
+        <button class="filter-chip" data-filter="Entertainment" onclick="setHistoryFilter('Entertainment')">Entertainment</button>
+      </div>
+      <div class="tx-list" id="history-tx-list"><div class="empty-state">No transactions yet.</div></div>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="screen-profile" class="screen">
+    <div class="status-bar"><span class="clk">9:43</span><div class="right"><span>📶</span><span>🔋</span></div></div>
+    <div class="top-row"><div class="icon-btn" onclick="showScreen('screen-home')">←</div><div class="top-name">Profile</div><div class="avatar" id="profile-avatar">--</div></div>
+    <div class="greeting-block">
+      <h1 id="profile-name">—</h1>
+      <p id="profile-code-line">Username: —</p>
+    </div>
+    <div class="panel">
+      <h2>Account</h2>
+      <div class="row"><span class="lbl">Holder</span><span class="val" id="pf-holder">—</span></div>
+      <div class="row"><span class="lbl">Username</span><span class="val" id="pf-username">—</span></div>
+      <div class="row"><span class="lbl">Member ID</span><span class="val" id="pf-member-id">—</span></div>
+      <div class="row"><span class="lbl">Routing</span><span class="val">021000021</span></div>
+      <div class="row"><span class="lbl">Balance</span><span class="val" id="pf-net-worth">$0.00</span></div>
+      <div class="row"><span class="lbl">Status</span><span class="val" style="color:var(--green);">Active</span></div>
+    </div>
+    <div class="panel">
+      <h2>Change Name</h2>
+      <div class="form-group"><label for="pf-new-name">New Full Name</label><input id="pf-new-name" type="text" placeholder="New name"></div>
+      <button class="btn-gold" onclick="handleChangeName()">Save Name</button>
+      <div class="success-msg" id="pf-name-msg"></div>
+    </div>
+    <div class="panel">
+      <h2>Security</h2>
+      <button class="btn-outline" style="width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:800;" onclick="handleSignOut()">Sign Out</button>
+    </div>
+  </section>
+
+  <nav class="bottom-nav" id="main-nav" style="display: none;">
+    <button class="nav-item active" data-target="screen-home" onclick="showScreen('screen-home')"><span class="nav-icon">🏠</span>Home</button>
+    <button class="nav-item" data-target="screen-transfer" onclick="showScreen('screen-transfer')"><span class="nav-icon">⇄</span>Transfer</button>
+    <button class="nav-item" data-target="screen-bills" onclick="showScreen('screen-bills')"><span class="nav-icon">📄</span>Bills</button>
+    <button class="nav-item" data-target="screen-history" onclick="showScreen('screen-history')"><span class="nav-icon">☰</span>History</button>
+    <button class="nav-item" data-target="screen-profile" onclick="showScreen('screen-profile')"><span class="nav-icon">👤</span>Profile</button>
+  </nav>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const FIXED_USERNAME = 'bernie4545';
+const FIXED_PASSWORD = 'Fund453';
+const FIXED_NAME = 'Bernie Tallsalt';
+const FIXED_EMAIL = 'bernie4545@novapay.app';
+const LS_KEY = 'novapay_account_v1';
+
+const STARTING_BALANCE = 50000.00;
+
+let pendingUsername = null;
+
+function getAccount() {
+  let raw = localStorage.getItem(LS_KEY);
+  // Force reset if stored account uses old username
+  if (raw) {
+    try {
+      const existing = JSON.parse(raw);
+      if (existing.username !== FIXED_USERNAME) { raw = null; localStorage.removeItem(LS_KEY); }
+    } catch (e) { raw = null; }
+  }
+  if (!raw) {
+    const fresh = makeFreshAccount();
+    localStorage.setItem(LS_KEY, JSON.stringify(fresh));
+    return fresh;
+  }
+  try {
+    const u = JSON.parse(raw);
+    // Remove extra account fields
+    delete u.creditBalance;
+    delete u.businessBalance;
+    delete u.investBalance;
+    if (!u.transactions) u.transactions = [];
+    if (!u.scheduled) u.scheduled = [];
+    if (!u.payees) u.payees = [];
+    if (!u.contacts) u.contacts = [];
+    if (!u.virtualCards) u.virtualCards = [];
+    if (!u.notifications) u.notifications = [];
+    if (!u.budgets) u.budgets = {};
+    if (u.frozen === undefined) u.frozen = false;
+    u.activeAccount = 'checking';
+    if (!u.memberId) u.memberId = 'NP-4821-BT';
+    if (!u.streak) u.streak = 12;
+    if (u.cashback === undefined) u.cashback = 0;
+    if (u.interestYTD === undefined) u.interestYTD = 0;
+    if (!u.createdAt) u.createdAt = Date.now();
+    if (u.balance === undefined) u.balance = STARTING_BALANCE;
+    seedTrustWallet(u);
+    return u;
+  } catch (e) {
+    const fresh = makeFreshAccount();
+    localStorage.setItem(LS_KEY, JSON.stringify(fresh));
+    return fresh;
+  }
+}
+
+function makeFreshAccount() {
+  const user = {
+    name: FIXED_NAME,
+    username: FIXED_USERNAME,
+    pass: FIXED_PASSWORD,
+    email: FIXED_EMAIL,
+    balance: STARTING_BALANCE,
+    activeAccount: 'checking',
+    transactions: [],
+    notifications: [{ icon: '🏦', title: 'Welcome to NovaPay', text: 'Your account is ready.', date: Date.now() }],
+    contacts: [],
+    virtualCards: [],
+    budgets: {},
+    scheduled: [],
+    payees: [],
+    cashback: 0,
+    interestYTD: 0,
+    frozen: false,
+    memberId: 'NP-4821-BT',
+    streak: 12,
+    createdAt: Date.now(),
+    lastLogin: Date.now()
+  };
+  seedTrustWallet(user);
+  return user;
+}
+
+function saveAccount(user) { localStorage.setItem(LS_KEY, JSON.stringify(user)); }
+
+function seedTrustWallet(user) {
+  if (!user.transactions) user.transactions = [];
+  user.transactions = user.transactions.filter(t => !(t.label && t.label.toLowerCase().includes('ifundwomen')));
+  const has = user.transactions.some(t => t.label && t.label.toLowerCase().includes('trust wallet'));
+  if (!has) {
+    user.transactions.unshift({
+      type: 'receive', label: 'Received from Trust Wallet',
+      amount: 50000.00, date: Date.now() - 86400000,
+      account: 'checking', category: 'Other'
+    });
+  }
+}
+
+function isLoggedIn() { return sessionStorage.getItem('novapay_logged_in') === '1'; }
+function setLoggedIn(v) {
+  if (v) sessionStorage.setItem('novapay_logged_in', '1');
+  else sessionStorage.removeItem('novapay_logged_in');
+}
+
+function updateNav(target) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.target === target));
+}
+function showNav(show) {
+  const nav = document.getElementById('main-nav');
+  if (nav) nav.style.display = show ? 'flex' : 'none';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) { target.classList.add('active'); target.scrollTop = 0; }
+  const protectedScreens = ['screen-home','screen-transfer','screen-deposit','screen-bills','screen-history','screen-profile','screen-receive','screen-wire','screen-zelle','screen-notifications','screen-manage-card','screen-contacts','screen-budget','screen-statements','screen-currency','screen-split','screen-scheduled'];
+  if (protectedScreens.includes(id) && !isLoggedIn()) { showScreen('screen-signin'); return; }
+  if (protectedScreens.includes(id)) { showNav(true); updateNav(id); } else { showNav(false); }
+  if (isLoggedIn()) { renderAll(getAccount()); }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function handleSignIn() {
+  const username = document.getElementById('si-user').value.trim().toLowerCase();
+  const pass = document.getElementById('si-pass').value;
+  const err = document.getElementById('si-error'); err.textContent = '';
+  if (!username || !pass) { err.textContent = 'Enter username and password.'; return; }
+  if (username !== FIXED_USERNAME) { err.textContent = 'Incorrect username.'; return; }
+  if (pass !== FIXED_PASSWORD) { err.textContent = 'Incorrect password.'; return; }
+
+  const user = getAccount();
+  const code = generateCode();
+  user.verifyCode = code;
+  user.verifyCodeCreatedAt = Date.now();
+  saveAccount(user);
+
+  pendingUsername = FIXED_USERNAME;
+  document.getElementById('verify-code-display').textContent = code;
+  document.getElementById('verify-email-display').textContent = user.email;
+  document.getElementById('verify-code-input').value = '';
+  document.getElementById('verify-error').textContent = '';
+  document.getElementById('si-pass').value = '';
+  showScreen('screen-verify');
+  toast('Verification code: ' + code);
+}
+
+function handleVerify() {
+  const code = document.getElementById('verify-code-input').value.trim();
+  const err = document.getElementById('verify-error'); err.textContent = '';
+  if (!pendingUsername) { showScreen('screen-signin'); return; }
+  if (!code || code.length !== 6) { err.textContent = 'Enter the 6-digit code.'; return; }
+  const user = getAccount();
+  if (code !== user.verifyCode) { err.textContent = 'Incorrect code. Try again.'; return; }
+  delete user.verifyCode;
+  delete user.verifyCodeCreatedAt;
+  user.lastLogin = Date.now();
+  saveAccount(user);
+  setLoggedIn(true);
+  pendingUsername = null;
+  showScreen('screen-home');
+  toast('Welcome back, ' + user.name.split(' ')[0]);
+}
+
+function handleResendCode() {
+  if (!pendingUsername) { showScreen('screen-signin'); return; }
+  const user = getAccount();
+  const code = generateCode();
+  user.verifyCode = code;
+  user.verifyCodeCreatedAt = Date.now();
+  saveAccount(user);
+  document.getElementById('verify-code-display').textContent = code;
+  document.getElementById('verify-code-input').value = '';
+  document.getElementById('verify-error').textContent = '';
+  toast('New code: ' + code);
+}
+
+function cancelVerify() { pendingUsername = null; showScreen('screen-signin'); }
+
+function handleSignOut() {
+  setLoggedIn(false);
+  pendingUsername = null;
+  document.getElementById('si-user').value = '';
+  document.getElementById('si-pass').value = '';
+  showScreen('screen-signin');
+}
+
+function generateCode() { let c = ''; for (let i = 0; i < 6; i++) c += Math.floor(Math.random() * 10); return c; }
+
+function toggleTheme() { toast('Gold & White theme'); }
+
+function greetingText() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return 'Good Morning';
+  if (h >= 12 && h < 18) return 'Good Afternoon';
+  return 'Good Evening';
+}
+
+function updateClocks() {
+  const now = new Date();
+  let h = now.getHours(), m = now.getMinutes();
+  h = h % 12; if (h === 0) h = 12;
+  m = m < 10 ? '0' + m : m;
+  const t = h + ':' + m;
+  document.querySelectorAll('.clk, #clock').forEach(el => el.textContent = t);
+  const dateStr = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  ['date-line-home','date-line-history'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = dateStr; });
+  const greetingEl = document.getElementById('greeting');
+  if (greetingEl && isLoggedIn()) {
+    const user = getAccount();
+    greetingEl.textContent = greetingText() + ', ' + user.name.split(' ')[0];
+  }
+  checkScheduledTransfers();
+}
+
+function fmt(amount) {
+  const sign = amount < 0 ? '-' : '';
+  const abs = Math.abs(amount);
+  const fixed = abs.toFixed(2);
+  const parts = fixed.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return sign + '$' + parts.join('.');
+}
+function fmtSigned(amount) {
+  const sign = amount >= 0 ? '+' : '-';
+  const abs = Math.abs(amount);
+  const fixed = abs.toFixed(2);
+  const parts = fixed.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return sign + '$' + parts.join('.');
+}
+function activeBalance(user) { return user.balance || 0; }
+function applyBalance(user, delta) { user.balance = (user.balance || 0) + delta; }
+
+function quickToggleFreeze() {
+  const user = getAccount();
+  user.frozen = !user.frozen;
+  saveAccount(user);
+  toast(user.frozen ? '❄ Card frozen' : '🔥 Card unfrozen');
+  renderAll(user);
+}
+function toggleFreeze() { quickToggleFreeze(); }
+
+function addScheduled() {
+  const user = getAccount();
+  const name = document.getElementById('sc-name').value.trim();
+  const amount = parseFloat(document.getElementById('sc-amount').value);
+  const frequency = document.getElementById('sc-frequency').value;
+  const start = document.getElementById('sc-start').value;
+  const msg = document.getElementById('sc-msg'); msg.textContent = '';
+  if (!name) { msg.textContent = 'Enter recipient.'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  const startTime = start ? new Date(start).getTime() : Date.now();
+  user.scheduled = user.scheduled || [];
+  user.scheduled.push({ id: 'sch_' + Date.now(), name, amount, frequency, nextDate: startTime, createdAt: Date.now() });
+  saveAccount(user);
+  ['sc-name','sc-amount','sc-start'].forEach(id => document.getElementById(id).value = '');
+  toast('Scheduled transfer created');
+  renderAll(user);
+}
+function deleteScheduled(id) {
+  const user = getAccount();
+  user.scheduled = (user.scheduled || []).filter(s => s.id !== id);
+  saveAccount(user);
+  toast('Schedule removed');
+  renderAll(user);
+}
+function checkScheduledTransfers() {
+  if (!isLoggedIn()) return;
+  const user = getAccount();
+  if (!user.scheduled) return;
+  let changed = false; const now = Date.now();
+  user.scheduled.forEach(s => {
+    while (s.nextDate <= now) {
+      if (s.amount <= (user.balance || 0)) {
+        user.balance -= s.amount;
+        addTransaction(user, { type: 'transfer', label: 'Scheduled → ' + s.name, amount: -s.amount, date: now, account: 'checking', category: 'Other' });
+        addNotification(user, '⏰', 'Scheduled transfer sent', fmt(s.amount) + ' to ' + s.name);
+      }
+      const d = new Date(s.nextDate);
+      if (s.frequency === 'daily') d.setDate(d.getDate() + 1);
+      else if (s.frequency === 'weekly') d.setDate(d.getDate() + 7);
+      else if (s.frequency === 'biweekly') d.setDate(d.getDate() + 14);
+      else d.setMonth(d.getMonth() + 1);
+      s.nextDate = d.getTime();
+      changed = true;
+    }
+  });
+  if (changed) saveAccount(user);
+}
+function renderScheduled(user) {
+  const el = document.getElementById('scheduled-list'); if (!el) return;
+  const list = user.scheduled || [];
+  if (list.length === 0) { el.innerHTML = '<div class="empty-state">No scheduled transfers yet.</div>'; return; }
+  el.innerHTML = list.map(s => {
+    const d = new Date(s.nextDate);
+    const next = d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+    return `<div class="row"><div><div class="lbl" style="color:var(--text);font-weight:800;">→ ${escapeHtml(s.name)}</div><div style="font-size:11.5px;color:var(--muted);margin-top:4px;">${fmt(s.amount)} · ${s.frequency} · next ${next}</div></div><button class="payee-btn danger" onclick="deleteScheduled('${s.id}')">Delete</button></div>`;
+  }).join('');
+  const c = document.getElementById('scheduled-count');
+  if (c) c.textContent = list.length === 0 ? 'None' : (list.length + ' active');
+}
+
+function addPayee() {
+  const user = getAccount();
+  const name = document.getElementById('py-name').value.trim();
+  const amount = parseFloat(document.getElementById('py-amount').value) || 0;
+  const autopay = document.getElementById('py-autopay').checked;
+  const msg = document.getElementById('py-msg'); msg.textContent = '';
+  if (!name) { msg.textContent = 'Enter biller name.'; return; }
+  user.payees = user.payees || [];
+  user.payees.push({ id: 'py_' + Date.now(), name, amount, autopay });
+  saveAccount(user);
+  document.getElementById('py-name').value = ''; document.getElementById('py-amount').value = ''; document.getElementById('py-autopay').checked = false;
+  toast('Payee saved');
+  renderAll(user);
+}
+function deletePayee(id) {
+  const user = getAccount();
+  user.payees = (user.payees || []).filter(p => p.id !== id);
+  saveAccount(user);
+  toast('Payee removed');
+  renderAll(user);
+}
+function togglePayeeAutopay(id) {
+  const user = getAccount();
+  const p = (user.payees || []).find(x => x.id === id); if (!p) return;
+  p.autopay = !p.autopay;
+  saveAccount(user);
+  toast(p.autopay ? 'Autopay on for ' + p.name : 'Autopay off for ' + p.name);
+  renderAll(user);
+}
+function payPayee(id) {
+  const user = getAccount();
+  const p = (user.payees || []).find(x => x.id === id); if (!p) return;
+  const amount = p.amount || 0;
+  if (!amount || amount <= 0) { toast('Set a default amount first'); return; }
+  if (amount > activeBalance(user)) { toast('Insufficient balance'); return; }
+  applyBalance(user, -amount);
+  addTransaction(user, { type: 'bill', label: 'Bill — ' + p.name, amount: -amount, date: Date.now(), account: 'checking', category: 'Bills' });
+  addNotification(user, '📄', 'Bill paid', fmt(amount) + ' to ' + p.name);
+  saveAccount(user);
+  toast('Paid ' + p.name);
+  renderAll(user);
+}
+function renderPayees(user) {
+  const el = document.getElementById('payees-list'); if (!el) return;
+  const payees = user.payees || [];
+  if (payees.length === 0) { el.innerHTML = '<div class="empty-state">No saved payees yet.</div>'; return; }
+  el.innerHTML = payees.map(p => `<div class="payee-card"><div class="payee-avatar">🏢</div><div class="payee-info"><div class="payee-name">${escapeHtml(p.name)}</div><div class="payee-meta">${p.amount > 0 ? fmt(p.amount) + ' · ' : ''}${p.autopay ? '🔁 Autopay ON' : 'Manual'}</div></div><div class="payee-actions"><button class="payee-btn" onclick="payPayee('${p.id}')">Pay</button><button class="payee-btn" onclick="togglePayeeAutopay('${p.id}')">🔁</button><button class="payee-btn danger" onclick="deletePayee('${p.id}')">✕</button></div></div>`).join('');
+}
+
+let historyFilter = 'all';
+function setHistoryFilter(f) {
+  historyFilter = f;
+  document.querySelectorAll('#history-filters .filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === f));
+  renderHistoryFiltered();
+}
+function renderHistoryFiltered() {
+  if (!isLoggedIn()) return;
+  const user = getAccount();
+  const q = (document.getElementById('history-search').value || '').toLowerCase().trim();
+  let list = user.transactions || [];
+  if (historyFilter === 'income') list = list.filter(t => t.amount > 0);
+  else if (historyFilter === 'spending') list = list.filter(t => t.amount < 0);
+  else if (historyFilter !== 'all') list = list.filter(t => t.category === historyFilter);
+  if (q) list = list.filter(t => (t.label || '').toLowerCase().includes(q));
+  const el = document.getElementById('history-tx-list'); if (!el) return;
+  if (list.length === 0) { el.innerHTML = '<div class="empty-state">No matching transactions.</div>'; return; }
+  el.innerHTML = list.slice().reverse().map(tx => txHTML(tx)).join('');
+}
+
+function renderDonut(user) {
+  const donutEl = document.getElementById('donut-chart');
+  const legendEl = document.getElementById('donut-legend');
+  if (!donutEl || !legendEl) return;
+  const txs = (user.transactions || []).filter(t => t.amount < 0);
+  const cats = ['Food', 'Shopping', 'Bills', 'Transport', 'Entertainment', 'Other'];
+  const colors = ['#c9a84a', '#2563eb', '#15803d', '#b91c1c', '#7c3aed', '#8b7d55'];
+  const totals = {}; let total = 0;
+  cats.forEach(c => totals[c] = 0);
+  txs.forEach(t => { const c = cats.includes(t.category) ? t.category : 'Other'; totals[c] += Math.abs(t.amount); total += Math.abs(t.amount); });
+  if (total === 0) { donutEl.style.background = 'conic-gradient(rgba(201,168,74,0.15) 0% 100%)'; legendEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">No spending yet.</div>'; return; }
+  let cumulative = 0; const stops = []; const legend = [];
+  cats.forEach((c, i) => {
+    const pct = (totals[c] / total) * 100;
+    const start = cumulative; cumulative += pct;
+    stops.push(`${colors[i]} ${start}% ${cumulative}%`);
+    if (totals[c] > 0) legend.push(`<div class="item"><span class="name"><span class="swatch" style="background:${colors[i]}"></span>${c}</span><span class="pct">${pct.toFixed(0)}%</span></div>`);
+  });
+  donutEl.style.background = `conic-gradient(${stops.join(', ')})`;
+  legendEl.innerHTML = legend.join('');
+}
+
+function renderAll(user) {
+  const initials = user.name.split(' ').map(s => s[0]).join('').slice(0,2).toUpperCase();
+  const homeName = document.getElementById('home-name');
+  const homeAvatar = document.getElementById('home-avatar');
+  const greeting = document.getElementById('greeting');
+  const lastLogin = document.getElementById('last-login');
+  const balance = document.getElementById('balance-display');
+  const balanceSub = document.getElementById('balance-sub');
+  if (homeName) homeName.textContent = user.name;
+  if (homeAvatar) homeAvatar.textContent = initials;
+  if (greeting) greeting.textContent = greetingText() + ', ' + user.name.split(' ')[0];
+  if (lastLogin) lastLogin.textContent = 'Last login: ' + new Date(user.lastLogin || Date.now()).toLocaleString();
+  const activeBal = activeBalance(user);
+  if (balance) animateNumber(balance, activeBal);
+  if (balanceSub) balanceSub.textContent = 'Checking Account •••• 4821';
+  const pv = document.getElementById('pending-value'); const av = document.getElementById('available-value'); const iv = document.getElementById('interest-value');
+  if (pv) pv.textContent = fmt(0);
+  if (av) av.textContent = fmt(activeBal);
+  if (iv) iv.textContent = fmt(user.interestYTD || 0);
+  const freezeEl = document.getElementById('quick-freeze');
+  const freezeIcon = document.getElementById('freeze-icon');
+  const freezeLbl = document.getElementById('freeze-label');
+  if (freezeEl) freezeEl.classList.toggle('frozen', !!user.frozen);
+  if (freezeIcon) freezeIcon.textContent = user.frozen ? '🔥' : '❄';
+  if (freezeLbl) freezeLbl.textContent = user.frozen ? 'Unfreeze' : 'Freeze';
+  const chipCash = document.getElementById('chip-cashback'); const chipStreak = document.getElementById('chip-streak'); const chipMember = document.getElementById('chip-member');
+  if (chipCash) chipCash.textContent = '💵 Cashback: ' + fmt(user.cashback || 0);
+  if (chipStreak) chipStreak.textContent = '🔥 ' + (user.streak || 12) + '-day streak';
+  if (chipMember) chipMember.textContent = '⭐ Member since ' + new Date(user.createdAt).toLocaleDateString(undefined, {month:'short', year:'numeric'});
+  const txs = user.transactions || [];
+  const income = txs.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
+  const spent = txs.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
+  const sInc = document.getElementById('stat-income'); const sSpe = document.getElementById('stat-spent'); const sSav = document.getElementById('stat-saved'); const sCnt = document.getElementById('stat-count');
+  if (sInc) sInc.textContent = fmt(income);
+  if (sSpe) sSpe.textContent = fmt(spent);
+  if (sSav) sSav.textContent = fmt(0);
+  if (sCnt) sCnt.textContent = txs.length;
+  renderChart(user);
+  renderDonut(user);
+  ['transfer-avatar','deposit-avatar','bills-avatar','history-avatar','profile-avatar','receive-avatar','wire-avatar','zelle-avatar','notif-avatar','card-mgmt-avatar','contacts-avatar','budget-avatar','stmt-avatar','curr-avatar','split-avatar','sched-avatar'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = initials; });
+  const pfName = document.getElementById('profile-name'); const pfHolder = document.getElementById('pf-holder'); const pfCode = document.getElementById('profile-code-line'); const pfUser = document.getElementById('pf-username'); const pfMember = document.getElementById('pf-member-id'); const pfBal = document.getElementById('pf-net-worth');
+  if (pfName) pfName.textContent = user.name;
+  if (pfHolder) pfHolder.textContent = user.name;
+  if (pfCode) pfCode.textContent = 'Username: @' + user.username;
+  if (pfUser) pfUser.textContent = '@' + user.username;
+  if (pfMember) pfMember.textContent = user.memberId;
+  if (pfBal) pfBal.textContent = fmt(activeBalance(user));
+  const rcvHolder = document.getElementById('rcv-holder'); if (rcvHolder) rcvHolder.textContent = user.name;
+  renderNotifications(user);
+  renderContacts(user);
+  renderBudgets(user);
+  renderStatements(user);
+  renderCurrency(user);
+  renderUpcomingBills(user);
+  renderVirtualCards(user);
+  renderScheduled(user);
+  renderPayees(user);
+  const cardLabel = document.getElementById('card-status-label'); const freezeBtn = document.getElementById('freeze-btn'); const frozenOv = document.getElementById('frozen-overlay');
+  if (cardLabel) cardLabel.textContent = user.frozen ? '❄ Frozen' : 'Active';
+  if (freezeBtn) freezeBtn.textContent = user.frozen ? '🔥 Unfreeze Card' : '❄ Freeze Card';
+  if (frozenOv) frozenOv.classList.toggle('show', !!user.frozen);
+  const dot = document.getElementById('notif-dot');
+  if (dot) dot.style.display = (user.notifications && user.notifications.length > 0) ? 'block' : 'none';
+  renderTransactions(user);
+  renderHistoryFiltered();
+}
+
+function animateNumber(el, target) {
+  const start = parseFloat((el.dataset.value || '0').replace(/,/g,'')) || 0;
+  const duration = 400; const t0 = performance.now();
+  function step(now) {
+    const p = Math.min(1, (now - t0) / duration);
+    const val = start + (target - start) * p;
+    el.textContent = fmt(val);
+    if (p < 1) requestAnimationFrame(step);
+    else el.dataset.value = String(target);
+  }
+  requestAnimationFrame(step);
+}
+
+function renderChart(user) {
+  const bars = document.getElementById('chart-bars'); if (!bars) return;
+  const txs = user.transactions || [];
+  const now = new Date();
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now); d.setDate(now.getDate() - i); d.setHours(0,0,0,0);
+    const next = new Date(d); next.setDate(d.getDate() + 1);
+    const inc = txs.filter(t => t.date >= d.getTime() && t.date < next.getTime() && t.amount > 0).reduce((s,t) => s + t.amount, 0);
+    const spd = txs.filter(t => t.date >= d.getTime() && t.date < next.getTime() && t.amount < 0).reduce((s,t) => s + Math.abs(t.amount), 0);
+    days.push({ inc, spd, label: d.toLocaleDateString(undefined, {weekday:'short'}).slice(0,2) });
+  }
+  const maxVal = Math.max(1, ...days.map(d => Math.max(d.inc, d.spd)));
+  bars.innerHTML = days.map(d => {
+    const incH = Math.round((d.inc / maxVal) * 100); const spdH = Math.round((d.spd / maxVal) * 100);
+    return `<div class="chart-bar-wrap"><div style="display:flex;gap:2px;width:100%;height:100%;align-items:flex-end;"><div class="chart-bar" style="height:${Math.max(4, incH)}%"></div><div class="chart-bar spend" style="height:${Math.max(4, spdH)}%"></div></div><div class="chart-label">${d.label}</div></div>`;
+  }).join('');
+}
+
+function txHTML(tx) {
+  const icon = tx.type === 'deposit' ? '↓' : tx.type === 'bill' ? '📄' : tx.type === 'wire' ? '🌐' : tx.type === 'zelle' ? '⚡' : tx.type === 'receive' ? '↓' : tx.type === 'check' ? '📷' : '↗';
+  const cls = tx.amount >= 0 ? 'positive' : 'negative';
+  const d = new Date(tx.date);
+  const date = d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}) + ' · ' + d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+  return `<div class="tx"><div class="tx-left"><div class="tx-icon">${icon}</div><div style="min-width:0;"><div class="tx-name">${escapeHtml(tx.label)}</div><div class="tx-date">${date}</div></div></div><div class="tx-amount ${cls}">${fmtSigned(tx.amount)}</div></div>`;
+}
+
+function renderTransactions(user) {
+  const list = user.transactions || [];
+  const homeList = document.getElementById('home-tx-list');
+  if (homeList) homeList.innerHTML = list.length === 0 ? '<div class="empty-state">No transactions yet.</div>' : list.slice(-5).reverse().map(txHTML).join('');
+}
+
+function renderNotifications(user) {
+  const el = document.getElementById('notif-list'); if (!el) return;
+  const notifs = (user.notifications || []).slice().reverse();
+  if (notifs.length === 0) { el.innerHTML = '<div class="empty-state">No notifications.</div>'; return; }
+  el.innerHTML = notifs.map(n => {
+    const d = new Date(n.date);
+    const time = d.toLocaleDateString(undefined, {month:'short', day:'numeric'}) + ' · ' + d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+    return `<div class="notif-item"><div class="notif-icon">${n.icon || '🔔'}</div><div class="notif-info"><div class="notif-title">${escapeHtml(n.title)}</div><div class="notif-text">${escapeHtml(n.text)}</div><div class="notif-time">${time}</div></div></div>`;
+  }).join('');
+}
+
+function renderContacts(user) {
+  const el = document.getElementById('contacts-list'); if (!el) return;
+  const contacts = user.contacts || [];
+  if (contacts.length === 0) { el.innerHTML = '<div class="empty-state">No contacts yet.</div>'; return; }
+  el.innerHTML = contacts.map((c, i) => {
+    const initials = c.name.split(' ').map(s => s[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="contact-item"><div class="co-avatar">${initials}</div><div style="flex:1;min-width:0;"><div class="co-name">${escapeHtml(c.name)}</div><div class="co-info">${escapeHtml(c.info)}</div></div><button class="co-action" onclick="quickSend(${i})">Send</button></div>`;
+  }).join('');
+}
+function quickSend(index) {
+  const user = getAccount();
+  const c = (user.contacts || [])[index]; if (!c) return;
+  document.getElementById('tr-recipient').value = c.name;
+  showScreen('screen-transfer');
+}
+
+function renderBudgets(user) {
+  const el = document.getElementById('budget-list'); if (!el) return;
+  const budgets = user.budgets || {};
+  const cats = Object.keys(budgets);
+  if (cats.length === 0) { el.innerHTML = '<div class="empty-state">No budgets set yet.</div>'; return; }
+  const txs = user.transactions || [];
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+  el.innerHTML = cats.map(c => {
+    const limit = budgets[c];
+    const spent = txs.filter(t => t.amount < 0 && t.category === c && t.date >= monthStart.getTime()).reduce((s,t) => s + Math.abs(t.amount), 0);
+    const pct = Math.min(100, Math.round((spent / limit) * 100));
+    return `<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;"><span>${escapeHtml(c)}</span><span>${fmt(spent)} / ${fmt(limit)}</span></div><div style="width:100%;height:10px;border-radius:999px;background:#f5ecd0;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${pct > 90 ? 'linear-gradient(90deg,#f87171,#dc2626)' : 'linear-gradient(90deg,var(--gold-soft),var(--gold))'};border-radius:999px;"></div></div></div>`;
+  }).join('');
+}
+
+function renderStatements(user) {
+  const el = document.getElementById('statements-list'); if (!el) return;
+  const months = []; const now = new Date();
+  for (let i = 0; i < 6; i++) months.push(new Date(now.getFullYear(), now.getMonth() - i, 1));
+  el.innerHTML = months.map(d => {
+    const start = d.getTime();
+    const next = new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime();
+    const txs = (user.transactions || []).filter(t => t.date >= start && t.date < next);
+    const label = d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    return `<div class="row" style="cursor:pointer;" onclick="viewStatement(${start}, ${next}, '${label}')"><span class="lbl">📄 ${label}</span><span class="val">${txs.length} txns</span></div>`;
+  }).join('');
+}
+function viewStatement(start, end, label) {
+  const user = getAccount();
+  const txs = (user.transactions || []).filter(t => t.date >= start && t.date < end);
+  const inc = txs.filter(t => t.amount > 0).reduce((s,t) => s + t.amount, 0);
+  const spd = txs.filter(t => t.amount < 0).reduce((s,t) => s + Math.abs(t.amount), 0);
+  alert('Statement — ' + label + '\n\nTransactions: ' + txs.length + '\nTotal In: ' + fmt(inc) + '\nTotal Out: ' + fmt(spd) + '\nNet: ' + fmt(inc - spd));
+}
+
+function renderCurrency(user) {
+  const bal = activeBalance(user);
+  const rates = { EUR: 0.92, GBP: 0.79, NGN: 1550, JPY: 155 };
+  const usd = document.getElementById('cur-usd'); const eur = document.getElementById('cur-eur'); const gbp = document.getElementById('cur-gbp'); const ngn = document.getElementById('cur-ngn'); const jpy = document.getElementById('cur-jpy');
+  if (usd) usd.textContent = fmt(bal);
+  if (eur) eur.textContent = '€' + (bal * rates.EUR).toFixed(2);
+  if (gbp) gbp.textContent = '£' + (bal * rates.GBP).toFixed(2);
+  if (ngn) ngn.textContent = '₦' + (bal * rates.NGN).toFixed(2);
+  if (jpy) jpy.textContent = '¥' + Math.round(bal * rates.JPY);
+}
+function updateConverter() {
+  const amt = parseFloat(document.getElementById('cv-amount').value) || 0;
+  const rates = { EUR: 0.92, GBP: 0.79, NGN: 1550 };
+  document.getElementById('cv-eur').textContent = '€' + (amt * rates.EUR).toFixed(2);
+  document.getElementById('cv-gbp').textContent = '£' + (amt * rates.GBP).toFixed(2);
+  document.getElementById('cv-ngn').textContent = '₦' + (amt * rates.NGN).toFixed(2);
+}
+
+function renderUpcomingBills(user) {
+  const el = document.getElementById('upcoming-bills'); if (!el) return;
+  const now = new Date();
+  const bills = [{ name: 'Electric Company', amount: 145.00, days: 3 }, { name: 'Internet Provider', amount: 79.99, days: 7 }, { name: 'Phone Bill', amount: 55.00, days: 12 }];
+  el.innerHTML = bills.map(b => {
+    const due = new Date(now); due.setDate(now.getDate() + b.days);
+    const label = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return `<div class="row"><span class="lbl">📄 ${b.name}</span><span class="val">${fmt(b.amount)} · ${label}</span></div>`;
+  }).join('');
+}
+
+function renderVirtualCards(user) {
+  const el = document.getElementById('vcard-gallery'); if (!el) return;
+  const cards = user.virtualCards || [];
+  if (cards.length === 0) { el.innerHTML = '<div class="empty-state">No virtual cards generated yet.</div>'; return; }
+  el.innerHTML = cards.map((c, i) => `<div class="copy-row"><div><div class="key">Card ${i+1} · Exp ${c.expiry}</div><div class="value">${c.number}</div></div><button class="copy-btn" onclick="copyText('${c.number}')">COPY</button></div>`).join('');
+}
+
+function addTransaction(user, tx) {
+  user.transactions = user.transactions || [];
+  user.transactions.push(tx);
+  if (user.transactions.length > 500) user.transactions = user.transactions.slice(-500);
+}
+function addNotification(user, icon, title, text) {
+  user.notifications = user.notifications || [];
+  user.notifications.push({ icon, title, text, date: Date.now() });
+  if (user.notifications.length > 50) user.notifications = user.notifications.slice(-50);
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function handleTransfer() {
+  const user = getAccount();
+  const name = document.getElementById('tr-recipient').value.trim();
+  const amountStr = document.getElementById('tr-amount').value;
+  const category = document.getElementById('tr-category').value;
+  const note = document.getElementById('tr-note').value.trim();
+  const msg = document.getElementById('tr-msg'); msg.textContent = '';
+  const amount = parseFloat(amountStr);
+  if (!name) { msg.textContent = 'Enter recipient.'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  if (amount > activeBalance(user)) { msg.textContent = 'Insufficient balance.'; return; }
+  applyBalance(user, -amount);
+  addTransaction(user, { type: 'transfer', label: 'Transfer to ' + name + (note ? ' — ' + note : ''), amount: -amount, date: Date.now(), account: 'checking', category });
+  addNotification(user, '↗', 'Transfer sent', 'You sent ' + fmt(amount) + ' to ' + name);
+  user.cashback = (user.cashback || 0) + amount * 0.01;
+  saveAccount(user);
+  ['tr-recipient','tr-amount','tr-note'].forEach(id => document.getElementById(id).value = '');
+  toast('Transfer sent → ' + name);
+  renderAll(user);
+}
+function handleDeposit() {
+  const user = getAccount();
+  const amountStr = document.getElementById('dp-amount').value;
+  const source = document.getElementById('dp-source').value.trim() || 'Deposit';
+  const msg = document.getElementById('dp-msg'); msg.textContent = '';
+  const amount = parseFloat(amountStr);
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  applyBalance(user, amount);
+  addTransaction(user, { type: 'deposit', label: 'Deposit — ' + source, amount, date: Date.now(), account: 'checking', category: 'Other' });
+  addNotification(user, '↓', 'Deposit received', fmt(amount) + ' from ' + source);
+  saveAccount(user);
+  document.getElementById('dp-amount').value = ''; document.getElementById('dp-source').value = '';
+  toast('Deposited ' + fmt(amount));
+  renderAll(user);
+}
+function handleCheckDeposit() {
+  const user = getAccount();
+  const amountStr = document.getElementById('ck-amount').value;
+  const from = document.getElementById('ck-from').value.trim() || 'Unknown';
+  const msg = document.getElementById('ck-msg'); msg.textContent = '';
+  const amount = parseFloat(amountStr);
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  applyBalance(user, amount);
+  addTransaction(user, { type: 'check', label: 'Mobile Check — ' + from, amount, date: Date.now(), account: 'checking', category: 'Other' });
+  addNotification(user, '📷', 'Check deposited', fmt(amount) + ' from ' + from);
+  saveAccount(user);
+  document.getElementById('ck-amount').value = ''; document.getElementById('ck-from').value = '';
+  toast('Check deposited');
+  renderAll(user);
+}
+function handleReceive() {
+  const user = getAccount();
+  const from = document.getElementById('rcv-from').value.trim();
+  const amountStr = document.getElementById('rcv-amount').value;
+  const msg = document.getElementById('rcv-msg'); msg.textContent = '';
+  const amount = parseFloat(amountStr);
+  if (!from) { msg.textContent = 'Enter sender.'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  applyBalance(user, amount);
+  addTransaction(user, { type: 'receive', label: 'Received from ' + from, amount, date: Date.now(), account: 'checking', category: 'Other' });
+  addNotification(user, '↓', 'Payment received', fmt(amount) + ' from ' + from);
+  saveAccount(user);
+  document.getElementById('rcv-from').value = ''; document.getElementById('rcv-amount').value = '';
+  toast('Received ' + fmt(amount));
+  renderAll(user);
+}
+function handleWire() {
+  const user = getAccount();
+  const name = document.getElementById('wr-name').value.trim();
+  const bank = document.getElementById('wr-bank').value.trim();
+  const routing = document.getElementById('wr-routing').value.trim();
+  const account = document.getElementById('wr-account').value.trim();
+  const amountStr = document.getElementById('wr-amount').value;
+  const msg = document.getElementById('wr-msg'); msg.textContent = '';
+  const amount = parseFloat(amountStr);
+  const FEE = 15.00;
+  if (!name) { msg.textContent = 'Enter recipient.'; return; }
+  if (!bank) { msg.textContent = 'Enter bank.'; return; }
+  if (!/^\d{9}$/.test(routing)) { msg.textContent = 'Routing must be 9 digits.'; return; }
+  if (!account) { msg.textContent = 'Enter account.'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  if (amount + FEE > activeBalance(user)) { msg.textContent = 'Insufficient balance.'; return; }
+  applyBalance(user, -(amount + FEE));
+  addTransaction(user, { type: 'wire', label: 'Wire to ' + name + ' (' + bank + ')', amount: -amount, date: Date.now(), account: 'checking', category: 'Bills' });
+  addTransaction(user, { type: 'wire', label: 'Wire fee', amount: -FEE, date: Date.now(), account: 'checking', category: 'Bills' });
+  addNotification(user, '🌐', 'Wire sent', fmt(amount) + ' to ' + name);
+  saveAccount(user);
+  ['wr-name','wr-bank','wr-routing','wr-account','wr-amount'].forEach(id => document.getElementById(id).value = '');
+  toast('Wire sent · $15 fee');
+  renderAll(user);
+}
+function handleZelle() {
+  const user = getAccount();
+  const recipient = document.getElementById('zl-recipient').value.trim();
+  const amountStr = document.getElementById('zl-amount').value;
+  const msg = document.getElementById('zl-msg'); msg.textContent = '';
+  const amount = parseFloat(amountStr);
+  if (!recipient) { msg.textContent = 'Enter recipient.'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  if (amount > activeBalance(user)) { msg.textContent = 'Insufficient balance.'; return; }
+  applyBalance(user, -amount);
+  addTransaction(user, { type: 'zelle', label: 'Zelle to ' + recipient, amount: -amount, date: Date.now(), account: 'checking', category: 'Other' });
+  addNotification(user, '⚡', 'Zelle sent', fmt(amount) + ' to ' + recipient);
+  saveAccount(user);
+  document.getElementById('zl-recipient').value = ''; document.getElementById('zl-amount').value = '';
+  toast('Zelle sent');
+  renderAll(user);
+}
+function handleBill() {
+  const user = getAccount();
+  const name = document.getElementById('bl-name').value.trim();
+  const amountStr = document.getElementById('bl-amount').value;
+  const msg = document.getElementById('bl-msg'); msg.textContent = '';
+  const amount = parseFloat(amountStr);
+  if (!name) { msg.textContent = 'Enter biller.'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  if (amount > activeBalance(user)) { msg.textContent = 'Insufficient balance.'; return; }
+  applyBalance(user, -amount);
+  addTransaction(user, { type: 'bill', label: 'Bill — ' + name, amount: -amount, date: Date.now(), account: 'checking', category: 'Bills' });
+  addNotification(user, '📄', 'Bill paid', fmt(amount) + ' to ' + name);
+  saveAccount(user);
+  document.getElementById('bl-name').value = ''; document.getElementById('bl-amount').value = '';
+  toast('Bill paid');
+  renderAll(user);
+}
+function calcSplit() {
+  const total = parseFloat(document.getElementById('sp-total').value) || 0;
+  const count = parseInt(document.getElementById('sp-count').value) || 2;
+  const el = document.getElementById('split-result');
+  if (total <= 0 || count < 2) { el.innerHTML = 'Enter total and 2+ people.'; return; }
+  el.innerHTML = `<strong>${count} people</strong> · Each pays <strong>${fmt(total / count)}</strong>`;
+}
+function handleSplit() {
+  const user = getAccount();
+  const total = parseFloat(document.getElementById('sp-total').value) || 0;
+  const count = parseInt(document.getElementById('sp-count').value) || 0;
+  const msg = document.getElementById('sp-msg'); msg.textContent = '';
+  if (total <= 0 || count < 2) { msg.textContent = 'Enter total and 2+ people.'; return; }
+  const each = total / count;
+  if (each > activeBalance(user)) { msg.textContent = 'Insufficient balance.'; return; }
+  applyBalance(user, -each);
+  addTransaction(user, { type: 'transfer', label: 'Split bill (' + count + ' people)', amount: -each, date: Date.now(), account: 'checking', category: 'Other' });
+  addNotification(user, '🧾', 'Split bill paid', 'Your share: ' + fmt(each));
+  saveAccount(user);
+  document.getElementById('sp-total').value = ''; document.getElementById('sp-count').value = '';
+  toast('Paid your share · ' + fmt(each));
+  renderAll(user);
+}
+function addContact() {
+  const user = getAccount();
+  const name = document.getElementById('ct-name').value.trim();
+  const info = document.getElementById('ct-info').value.trim();
+  const msg = document.getElementById('ct-msg'); msg.textContent = '';
+  if (!name) { msg.textContent = 'Enter name.'; return; }
+  if (!info) { msg.textContent = 'Enter email/phone.'; return; }
+  user.contacts = user.contacts || [];
+  user.contacts.push({ name, info });
+  saveAccount(user);
+  document.getElementById('ct-name').value = ''; document.getElementById('ct-info').value = '';
+  toast('Contact saved');
+  renderAll(user);
+}
+function saveBudget() {
+  const user = getAccount();
+  const cat = document.getElementById('bd-cat').value;
+  const amount = parseFloat(document.getElementById('bd-amount').value);
+  const msg = document.getElementById('bd-msg'); msg.textContent = '';
+  if (!amount || amount <= 0) { msg.textContent = 'Enter valid amount.'; return; }
+  user.budgets = user.budgets || {};
+  user.budgets[cat] = amount;
+  saveAccount(user);
+  document.getElementById('bd-amount').value = '';
+  toast('Budget saved for ' + cat);
+  renderAll(user);
+}
+function revealPin() { const pin = String(Math.floor(1000 + Math.random() * 9000)); alert('Your PIN: ' + pin); }
+function generateVirtualCard() {
+  const user = getAccount();
+  let num = ''; for (let i = 0; i < 16; i++) num += Math.floor(Math.random() * 10);
+  const grouped = num.match(/.{1,4}/g).join(' ');
+  const expiry = String(Math.floor(Math.random()*12)+1).padStart(2,'0') + '/' + String((new Date().getFullYear()+3)%100);
+  user.virtualCards = user.virtualCards || [];
+  user.virtualCards.push({ number: grouped, expiry });
+  saveAccount(user);
+  renderAll(user);
+  toast('Virtual card created');
+}
+function handleChangeName() {
+  const user = getAccount();
+  const newName = document.getElementById('pf-new-name').value.trim();
+  const msg = document.getElementById('pf-name-msg'); msg.textContent = '';
+  if (!newName || newName.length < 3) { msg.textContent = 'Name must be 3+ chars.'; return; }
+  user.name = newName;
+  saveAccount(user);
+  document.getElementById('pf-new-name').value = '';
+  toast('Name updated');
+  renderAll(user);
+}
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => toast('Copied'), () => toast('Copy: ' + text));
+  } else toast('Copy: ' + text);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  getAccount();
+  updateClocks();
+  setInterval(updateClocks, 30000);
+  const sc = document.getElementById('sc-start');
+  if (sc && !sc.value) { const d = new Date(); d.setDate(d.getDate() + 1); sc.value = d.toISOString().split('T')[0]; }
+  if (isLoggedIn()) showScreen('screen-home');
+  else showScreen('screen-signin');
+});
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) {
+    updateClocks();
+    if (isLoggedIn()) renderAll(getAccount());
+  }
+});
+</script>
+</body>
+</html>
